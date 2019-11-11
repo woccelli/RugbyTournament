@@ -11,7 +11,7 @@ namespace TournoiRugby
         public int PoolId;
         public int NbTeamsInPool;
         Team[] TeamTab;
-        List<Game> GameList;
+        public List<Game> GameList;
 
         public Pool(int id,int nbTeamsInPool)
         {

@@ -13,6 +13,10 @@ namespace RugbyTournament
             int nbTeams;
             int nbPools;
 
+            ExcelManager excelManager = new ExcelManager();
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\TournoiMatin.xlsx";
+
+
             Console.WriteLine("Entrez le nombre d'équipes :");
             inputLine = Console.ReadLine();
             if(inputLine.Length > 0) { nbTeams = Convert.ToInt32(inputLine); }
@@ -62,17 +66,14 @@ namespace RugbyTournament
                 }
                 poolsTab[k].OrderGames();
             }
+            excelManager.CreateExcelFile(@path, poolsTab);
             bool b = false;
-            while (!b)
-            {
-                EnterGamesScore(poolsTab);
-                Console.WriteLine("Êtes-vous sûr de valider les scores et de passer au classement (o/n) ?");
-                string s = Console.ReadLine();
-                if (s == "o")
-                {
-                    b = true;
-                }
-            }
+            Console.Clear();
+            Console.WriteLine("Un fichier Excel a été généré sur votre bureau (" + path +")\nVeuillez remplir les résultats des matches et enregistrer le fichier sous le même emplacement (même nom et même dossier)\n\n Une fois ces deux étapes réalisées appuyez sur 'Entrée'");
+            Console.ReadKey();
+            Console.WriteLine("Êtes-vous sûr d'avoir renseigné tous les scores et d'avoir enregistré le fichier ? Si non, c'est le moment !\n Appuyez sur 'Entrée'");
+            excelManager.ReadResultsFromExcelFile(path, poolsTab);
+           
             List<List<Team>> tempList = ComputePoolsResults(poolsTab);
             DisplayIntermediaryResults(tempList);
             poolsTab = CreateNewPools(tempList, poolsTab);
@@ -80,17 +81,14 @@ namespace RugbyTournament
             {
                 p.OrderGames();
             }
-            b = false;
-            while (!b)
-            {
-                EnterGamesScore(poolsTab);
-                Console.WriteLine("Êtes-vous sûr de valider les scores et de passer au classement (o/n) ?");
-                string s = Console.ReadLine();
-                if(s == "o")
-                {
-                    b = true;
-                }
-            }
+            path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\TournoiApresMidi.xlsx";
+            excelManager.CreateExcelFile(@path, poolsTab);
+            Console.Clear();
+            Console.WriteLine("Un fichier Excel a été généré sur votre bureau (" + path + ")\nATTENTION : Ce fichier est différent du fichier que vous avez rempli pour le matin !\nVeuillez remplir les résultats des matches et enregistrer le fichier sous le même emplacement (même nom et même dossier)\n\n Une fois ces deux étapes réalisées appuyez sur 'Entrée'");
+            Console.ReadKey();
+            Console.WriteLine("Êtes-vous sûr d'avoir renseigné tous les scores et d'avoir enregistré le fichier ? Si non, c'est le moment !\n Appuyez sur 'Entrée'");
+            excelManager.ReadResultsFromExcelFile(path, poolsTab);
+            
             tempList = ComputePoolsResults(poolsTab);
             DisplayFinalResults(tempList);
         }
