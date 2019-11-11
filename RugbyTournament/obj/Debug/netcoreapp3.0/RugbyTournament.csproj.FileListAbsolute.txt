@@ -1,0 +1,11 @@
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\bin\Debug\netcoreapp3.0\RugbyTournament.exe
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\bin\Debug\netcoreapp3.0\RugbyTournament.deps.json
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\bin\Debug\netcoreapp3.0\RugbyTournament.runtimeconfig.json
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\bin\Debug\netcoreapp3.0\RugbyTournament.runtimeconfig.dev.json
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\bin\Debug\netcoreapp3.0\RugbyTournament.dll
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\bin\Debug\netcoreapp3.0\RugbyTournament.pdb
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\obj\Debug\netcoreapp3.0\RugbyTournament.AssemblyInfoInputs.cache
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\obj\Debug\netcoreapp3.0\RugbyTournament.AssemblyInfo.cs
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\obj\Debug\netcoreapp3.0\RugbyTournament.dll
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\obj\Debug\netcoreapp3.0\RugbyTournament.pdb
+C:\Users\willi\source\repos\TournoiRugbySolution\TournoiRugby\obj\Debug\netcoreapp3.0\RugbyTournament.csprojAssemblyReference.cache
