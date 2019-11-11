@@ -42,6 +42,7 @@ namespace TournoiRugby
 
         public void OrderGames()
         {
+            this.GameList.Clear();
             List<int> teamList = new List<int>();
             int halfsize;
             foreach(Team t in TeamTab)
@@ -132,7 +133,7 @@ namespace TournoiRugby
             return GameList.Count;
         }
 
-        public string GetUnplayedGames()
+        public int GetUnplayedGames()
         {
             int unplayedGames = 0;
             if(GameList.Count > 0)
@@ -144,7 +145,7 @@ namespace TournoiRugby
                     }
                 }
             }
-            return (unplayedGames + " score(s) non renseigné(s).");
+            return unplayedGames;
             
         }
 

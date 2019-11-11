@@ -24,13 +24,20 @@ namespace RugbyTournament
         }
         public override string ToString()
         {
-            return this.Name + " (" + this.TotalScore + ")";
+            return this.Name + " (Points:" + this.TotalScore + ")";
         }
 
         public double ComputeTotalScore()
         {
             this.TotalScore = PointsOfVictoriesAndDraws + (ScoresSum*0.001);
             return TotalScore;
+        }
+
+        public void ClearResults ()
+        {
+            this.PointsOfVictoriesAndDraws = 0;
+            this.ScoresSum = 0;
+            this.TotalScore = 0;
         }
     }
 }

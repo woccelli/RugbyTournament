@@ -23,16 +23,20 @@ namespace RugbyTournament
             string s;
             if (Winner != null)
             {
-                s = TeamA.ToString() + "(" + ScoreA+ ") VS " + TeamB.ToString() + "(" + ScoreB + ")";
+                s = TeamA.Name + "(" + ScoreA+ ") VS " + TeamB.Name + "(" + ScoreB + ")";
             } else
             {
-                s = TeamA.ToString() + " VS " + TeamB.ToString();
+                s = TeamA.Name + " VS " + TeamB.Name;
             }
             return s;
         }
 
         public void EnterScore(int scoreA, int scoreB)
         {
+            if(Winner != null)
+            {
+                CancelPreviousEnterScore();
+            }
             this.ScoreA = scoreA;
             this.ScoreB = scoreB;
             TeamA.ScoresSum += scoreA;
@@ -68,6 +72,25 @@ namespace RugbyTournament
             } else
             {
                 return TeamB.Name;
+            }
+        }
+        public void CancelPreviousEnterScore()
+        {
+            Winner = null;
+            TeamA.ScoresSum -= ScoreA;
+            TeamB.ScoresSum -= ScoreB;
+            if (ScoreA - ScoreB > 0)
+            {
+                TeamA.PointsOfVictoriesAndDraws -= 3;
+            }
+            else if (ScoreA - ScoreB == 0)
+            {
+                TeamA.PointsOfVictoriesAndDraws -= 1;
+                TeamB.PointsOfVictoriesAndDraws -= 1;
+            }
+            else
+            {
+                TeamB.PointsOfVictoriesAndDraws -= 3;
             }
         }
     }
