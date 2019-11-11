@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using TournoiRugby;
+using System.Linq;
 
 namespace RugbyTournament
 {
@@ -61,6 +63,7 @@ namespace RugbyTournament
                 poolsTab[k].OrderGames();
             }
             EnterGamesScore(poolsTab);
+            ComputePoolsResults(poolsTab);
         }
 
         static Pool[] CreatePoolTab (int nbTeams, int nbPools)
@@ -125,7 +128,7 @@ namespace RugbyTournament
             Console.WriteLine("Les pools de votre tournoi : \n");
             foreach(Pool p in pTab)
             {
-                Console.WriteLine(p.ToString());
+                Console.WriteLine(p.ToString() + " [" + p.GetUnplayedGames() + "]");
             }
         }
 
@@ -213,6 +216,39 @@ namespace RugbyTournament
             Console.Clear();
             Console.WriteLine("\nMatch validé\n" + g.TeamA + ": " + g.ScoreA +"\n"+g.TeamB+": "+g.ScoreB+"\n\n"+ "Vainqueur = " + g.GetVerbalWinner() + "\n\n Appuyez sur Entrée ...");
             Console.ReadLine();
+        }
+
+        static List<Pool> ComputePoolsResults(Pool[] pTab)
+        {
+            List<List<Team>> sortedTeamsLists = new List<List<Team>>();
+            List<Team> tempTeamList;
+            List<Pool> newPoolsList = new List<Pool>();
+            foreach(Pool p in pTab)
+            {
+                Pool newP = new Pool(p.PoolId, p.NbTeamsInPool);
+                newPoolsList.Add(newP);
+            }
+            foreach(Pool p in pTab)
+            {
+                tempTeamList = p.ComputeResults();
+                sortedTeamsLists.Add(tempTeamList);
+            }
+            List<Team> SortedList = sortedTeamsLists.SelectMany(teamList => teamList).OrderBy(team => team.PositionInPool).ThenByDescending(team => team.TotalScore).ToList();
+            foreach(Team t in SortedList)
+            {
+                Console.WriteLine(t.ToString());
+            }
+            foreach(Pool p in newPoolsList)
+            {
+                for(int i = 0; i < p.NbTeamsInPool; i++)
+                {
+                    p.AddTeam(SortedList[0], i);
+                    SortedList.RemoveAt(0);
+                }
+                Console.WriteLine(p.ToString());
+            }
+            
+            return newPoolsList;
         }
     }
 }

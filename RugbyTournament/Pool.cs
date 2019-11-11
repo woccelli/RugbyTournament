@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace TournoiRugby
 {
@@ -129,6 +130,38 @@ namespace TournoiRugby
         public int GetNbOfGames()
         {
             return GameList.Count;
+        }
+
+        public string GetUnplayedGames()
+        {
+            int unplayedGames = 0;
+            if(GameList.Count > 0)
+            {
+                foreach (Game g in GameList ) {
+                    if(g.Winner == null)
+                    {
+                        unplayedGames++;
+                    }
+                }
+            }
+            return (unplayedGames + " score(s) non renseigné(s).");
+            
+        }
+
+        public List<Team> ComputeResults()
+        {
+            List<Team> orderedTeams = new List<Team>();
+            foreach(Team t in TeamTab)
+            {
+                t.ComputeTotalScore();
+                orderedTeams.Add(t);
+            }
+            List<Team> SortedList = orderedTeams.OrderByDescending(o => o.TotalScore).ToList();
+            for(int i = 0; i< SortedList.Count; i++)
+            {
+                SortedList[i].PositionInPool = i + 1;
+            }
+            return SortedList;
         }
     }
 }

@@ -35,18 +35,26 @@ namespace RugbyTournament
         {
             this.ScoreA = scoreA;
             this.ScoreB = scoreB;
+            TeamA.ScoresSum += scoreA;
+            TeamB.ScoresSum += scoreB;
             if (ScoreA - ScoreB > 0)
             {
                 Winner = Convert.ToString(TeamA.Id);
+                TeamA.PointsOfVictoriesAndDraws += 3;
             } 
             else if (ScoreA - ScoreB == 0)
             {
                 Winner = "Match nul";
+                TeamA.PointsOfVictoriesAndDraws += 1;
+                TeamB.PointsOfVictoriesAndDraws += 1;
             }
             else
             {
                 Winner = Convert.ToString(TeamB.Id);
+                TeamB.PointsOfVictoriesAndDraws += 3;
             }
+            TeamA.ComputeTotalScore();
+            TeamB.ComputeTotalScore();
         }
 
         public string GetVerbalWinner ()
