@@ -5,6 +5,22 @@ using TournoiRugby;
 
 namespace RugbyTournament
 {
+    /// <summary>
+    /// Main class of the program, simulates the scheduling of a tournament with two phases (in practive, morning classement pools and afternoon classement pools)
+    /// </summary>
+    /// <remarks>
+    /// First phase (morning scheduling) :
+    ///     - The user specifies the characteristics (nb of teams, nb of pools) of the tournament and the name of the teams
+    ///     - The program will generate the pools and schedule the games of the tournament
+    ///     - The program will create an Excel file with the games per pool
+    ///     - The user will fill this file with the scores
+    ///     - The program will use the filled file to classify the teams, display the results
+    /// Second phase (afternoon scheduling)
+    ///     - The program will use the results of the first phase to create new pools (based on the ranking of the teams)
+    ///     - The program will generate a new Excel file with the games of the second phase
+    ///     - The user will fill the file with the results
+    ///     - The program will use the filled file to classify the teams and display the final results
+    /// </remarks>
     class Program
     {
         static void Main(string[] args)
@@ -13,10 +29,13 @@ namespace RugbyTournament
             int nbTeams;
             int nbPools;
 
+            //*********** FIRST PHASE *****************
+
+            //Generate the Excel file
             ExcelManager excelManager = new ExcelManager();
             string path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\TournoiMatin.xlsx";
 
-
+            //Specify the tournament characteristics
             Console.WriteLine("Entrez le nombre d'équipes :");
             inputLine = Console.ReadLine();
             if(inputLine.Length > 0) { nbTeams = Convert.ToInt32(inputLine); }
@@ -42,6 +61,7 @@ namespace RugbyTournament
             }
             Pool[] poolsTab = CreatePoolTab(nbTeams,nbPools);
            
+            //Specify the name of the teams
             Team[] tempTeamTab = new Team[nbTeams];
             for (int i = 0; i < nbTeams ; i++)
             {
@@ -55,6 +75,7 @@ namespace RugbyTournament
                 Team t = new Team(inputLine,i);
                 tempTeamTab[i] = t;
             }
+            //Generate the pools randomly
             Shuffle(tempTeamTab);
             int countTeams = 0;
             for (int k = 0; k<nbPools; k++)
@@ -68,31 +89,50 @@ namespace RugbyTournament
             }
             excelManager.CreateExcelFile(@path, poolsTab);
 
+            //Inform the user that a file has been created and that he must fill it
             Console.Clear();
             Console.WriteLine("Un fichier Excel a été généré sur votre bureau (" + path +")\nVeuillez remplir les résultats des matches et enregistrer le fichier sous le même emplacement (même nom et même dossier)\n\n Une fois ces deux étapes réalisées appuyez sur 'Entrée'");
             Console.ReadKey();
             Console.WriteLine("Êtes-vous sûr d'avoir renseigné tous les scores et d'avoir enregistré le fichier ? Si non, c'est le moment !\n Appuyez sur 'Entrée'");
+            //Read information from the excel file
             excelManager.ReadResultsFromExcelFile(path, poolsTab);
            
+            //Classify the teams and display the rank of each team
             List<List<Team>> tempList = ComputePoolsResults(poolsTab);
             DisplayIntermediaryResults(tempList);
+
+            //**************** SECOND PHASE ****************************
+            //Generate the new pools from the ranking
             poolsTab = CreateNewPools(tempList, poolsTab);
+            //Generate the new games
             foreach(Pool p in poolsTab)
             {
                 p.OrderGames();
             }
+            //Generate a new Excel file for the second phase
             path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "\\TournoiApresMidi.xlsx";
             excelManager.CreateExcelFile(@path, poolsTab);
+
+            //Inform the user that a file has been created and that he must fill it
             Console.Clear();
             Console.WriteLine("Un fichier Excel a été généré sur votre bureau (" + path + ")\nATTENTION : Ce fichier est différent du fichier que vous avez rempli pour le matin !\nVeuillez remplir les résultats des matches et enregistrer le fichier sous le même emplacement (même nom et même dossier)\n\n Une fois ces deux étapes réalisées appuyez sur 'Entrée'");
             Console.ReadKey();
             Console.WriteLine("Êtes-vous sûr d'avoir renseigné tous les scores et d'avoir enregistré le fichier ? Si non, c'est le moment !\n Appuyez sur 'Entrée'");
+            //Read the information from the file
             excelManager.ReadResultsFromExcelFile(path, poolsTab);
             
+            //Classify the teams and display the results 
             tempList = ComputePoolsResults(poolsTab);
             DisplayFinalResults(tempList);
         }
 
+        /// <summary>
+        /// This method is used to create nbPools and fill them with the correct number of teams
+        /// This method evenly distributes the nb of teams by pool, when nbTeams%nbPools!=0, the addtionnal teams are added to the first created pools
+        /// </summary>
+        /// <param name="nbTeams"></param>
+        /// <param name="nbPools"></param>
+        /// <returns></returns>
         static Pool[] CreatePoolTab (int nbTeams, int nbPools)
         {
             Pool[] pTab = new Pool[nbPools];
@@ -104,11 +144,11 @@ namespace RugbyTournament
                 }
             } else 
             {
-                for(int i = 0; i< nbTeams%nbPools; i++)
+                for(int i = 0; i< nbTeams%nbPools; i++) // fills the first pools with an additional team
                 {
                     pTab[i] = new Pool(i+1, (int)(nbTeams / nbPools)+1);
                 }
-                for (int i = nbTeams%nbPools; i < nbPools; i++)
+                for (int i = nbTeams%nbPools; i < nbPools; i++) // fills the remaining pools 
                 {
                     pTab[i] = new Pool(i+1, (int)(nbTeams/nbPools));
                 }
@@ -116,6 +156,10 @@ namespace RugbyTournament
             return pTab;
         }
 
+        /// <summary>
+        /// Shuffles the members of a tab thanks to the Knuth algorithm
+        /// </summary>
+        /// <param name="tab"></param>
         static void Shuffle(Team[] tab)
         {
             // Knuth shuffle algorithm :: courtesy of Wikipedia :)
@@ -129,25 +173,37 @@ namespace RugbyTournament
             }
         }
 
+        /// <summary>
+        /// This method displays the pools of the tournament, allows the user to chose a pool thanks to a number 
+        /// once the Pool is chosen, the method displays the games of the pool and the user can choose a game thanks to a number to specify the score of each team
+        /// </summary>
+        /// <remarks>
+        /// Not used in this version
+        /// </remarks>
+        /// <param name="poolsTab"></param>
         static void EnterGamesScore (Pool[] poolsTab)
         {
             Pool chosenPool = poolsTab[0];
             while (chosenPool != null)
             {
+                //Display the pools of the tournament along with a number
                 DisplayPoolsToChoose(poolsTab);
+                //The user choses a pools thanks to its number
                 chosenPool = ChoosePool(poolsTab);
                 if(chosenPool != null)
                 {
                     Game g = chosenPool.FindGameByIndex(0);
-                    while(g != null)
+                    while(g != null) //while loop to come back to the games display after entering the scores of a game
                     {
                         DisplayGames(chosenPool);
                         g = ChooseGame(chosenPool);
                         if(g != null)
                         {
                             EnterGameScore(g);
-                        }                    }
+                        }                    
+                    }
                 }
+                //Verify that there is no missing data to continue and compute the ranking
                 if(chosenPool == null)
                 {
                     foreach(Pool p in poolsTab)

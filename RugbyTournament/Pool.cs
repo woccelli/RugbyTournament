@@ -69,7 +69,7 @@ namespace TournoiRugby
         /// Adds each game one by one in the GameList to preserve the order
         /// </summary>
         /// <remarks>
-        /// The algorithm used for the game ordering is a Round Robin (Knuth) algorithm
+        /// The algorithm used for the game ordering is a Round Robin algorithm
         /// https://stackoverflow.com/questions/1293058/round-robin-tournament-algorithm-in-c-sharp
         /// </remarks>
         public void OrderGames()
