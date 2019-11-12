@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using TournoiRugby;
 using System.Linq;
+using TournoiRugby;
 
 namespace RugbyTournament
 {
@@ -67,7 +67,7 @@ namespace RugbyTournament
                 poolsTab[k].OrderGames();
             }
             excelManager.CreateExcelFile(@path, poolsTab);
-            bool b = false;
+
             Console.Clear();
             Console.WriteLine("Un fichier Excel a été généré sur votre bureau (" + path +")\nVeuillez remplir les résultats des matches et enregistrer le fichier sous le même emplacement (même nom et même dossier)\n\n Une fois ces deux étapes réalisées appuyez sur 'Entrée'");
             Console.ReadKey();
