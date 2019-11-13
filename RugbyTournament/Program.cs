@@ -37,31 +37,48 @@ namespace RugbyTournament
 
             //Specify the tournament characteristics
             Console.WriteLine("Entrez le nombre d'équipes :");
-            inputLine = Console.ReadLine();
-            if(inputLine.Length > 0) { nbTeams = Convert.ToInt32(inputLine); }
-            else { nbTeams = 0; }    
+            bool formatOk = int.TryParse(Console.ReadLine(), out nbTeams);
+            while (!formatOk || nbTeams <= 0)
+            {
+                Console.Clear();
+                Console.WriteLine("Le format d'entrée n'est pas correct, veuillez entrer un nombre (strictement positif)\nNombre d'équipes :");
+                formatOk = int.TryParse(Console.ReadLine(), out nbTeams);
+            }
 
             Console.WriteLine("Entrez le nombre de pools:");
-            inputLine = Console.ReadLine();
-            if (inputLine.Length > 0) { nbPools = Convert.ToInt32(inputLine); }
-            else { nbPools = 0; }
-
-            while(nbPools > nbTeams/2 || nbPools == 0 || nbTeams == 0)
+            formatOk = int.TryParse(Console.ReadLine(), out nbPools);
+            while (!formatOk || nbPools <= 0)
             {
-                Console.WriteLine("Trop de pools demandées pour le nombre d'équipes.");
+                Console.Clear();
+                Console.WriteLine("Le format d'entrée n'est pas correct, veuillez entrer un nombre (strictement positif)\nNombre de pools :");
+                formatOk = int.TryParse(Console.ReadLine(), out nbPools);
+            }
+
+            while(nbPools > nbTeams/2 || nbPools == 0 || nbTeams == 0 || !formatOk)
+            {
+                Console.WriteLine("Trop de pools pour le nombre d'équipes, veuillez réessayer.\n");
                 Console.WriteLine("Entrez le nombre d'équipes :");
-                inputLine = Console.ReadLine();
-                if (inputLine.Length > 0) { nbTeams = Convert.ToInt32(inputLine); }
-                else { nbTeams = 0; }
+                formatOk = int.TryParse(Console.ReadLine(), out nbTeams);
+                while (!formatOk || nbTeams <= 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Le format d'entrée n'est pas correct, veuillez entrer un nombre (strictement positif)\nNombre d'équipes :");
+                    formatOk = int.TryParse(Console.ReadLine(), out nbTeams);
+                }
 
                 Console.WriteLine("Entrez le nombre de pools:");
-                inputLine = Console.ReadLine();
-                if (inputLine.Length > 0) { nbPools = Convert.ToInt32(inputLine); }
-                else { nbPools = 0; }
+                formatOk = int.TryParse(Console.ReadLine(), out nbPools);
+                while (!formatOk || nbPools <= 0)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Le format d'entrée n'est pas correct, veuillez entrer un nombre (strictement positif)\nNombre de pools :");
+                    formatOk = int.TryParse(Console.ReadLine(), out nbPools);
+                }
             }
             Pool[] poolsTab = CreatePoolTab(nbTeams,nbPools);
-           
+
             //Specify the name of the teams
+            Console.Clear();
             Team[] tempTeamTab = new Team[nbTeams];
             for (int i = 0; i < nbTeams ; i++)
             {
@@ -94,12 +111,23 @@ namespace RugbyTournament
             Console.WriteLine("Un fichier Excel a été généré sur votre bureau (" + path +")\nVeuillez remplir les résultats des matches et enregistrer le fichier sous le même emplacement (même nom et même dossier)\n\n Une fois ces deux étapes réalisées appuyez sur 'Entrée'");
             Console.ReadKey();
             Console.WriteLine("Êtes-vous sûr d'avoir renseigné tous les scores et d'avoir enregistré le fichier ? Si non, c'est le moment !\n Appuyez sur 'Entrée'");
+            Console.ReadKey();
             //Read information from the excel file
-            excelManager.ReadResultsFromExcelFile(path, poolsTab);
+            bool readingOk = excelManager.ReadResultsFromExcelFile(path, poolsTab);
+            while(!readingOk)
+            {
+                Console.Clear();
+                Console.WriteLine("Des résultats n'ont pas été correctement renseignés sur le fichier excel.\nVeuillez vous assurer que les scores sont inscrits sous forme de nombres entiers (ex: 10, 14, 25).\nVeuillez vous assurer que les colonnes et les lignes ont bien été respectées (pas d'insertion de ligne ou de colonne).\nVeuillez vous assurer que le nom du fichier est le même que celui qui a été généré.\n\nAppuyez sur 'Entrée' pour réessayer...");
+                Console.ReadKey();
+                readingOk = excelManager.ReadResultsFromExcelFile(path, poolsTab);
+            }
            
             //Classify the teams and display the rank of each team
             List<List<Team>> tempList = ComputePoolsResults(poolsTab);
-            DisplayIntermediaryResults(tempList);
+            excelManager.WriteIntermediaryResults(@path, tempList);
+            Console.Clear();
+            Console.WriteLine("Un onglet a été créé dans le fichier Excel pour afficher les résultats.\nAppuyez sur 'Entrée' pour continuer et former les pools de la deuxième partie du tournoi.");
+            Console.ReadKey();
 
             //**************** SECOND PHASE ****************************
             //Generate the new pools from the ranking
@@ -118,12 +146,23 @@ namespace RugbyTournament
             Console.WriteLine("Un fichier Excel a été généré sur votre bureau (" + path + ")\nATTENTION : Ce fichier est différent du fichier que vous avez rempli pour le matin !\nVeuillez remplir les résultats des matches et enregistrer le fichier sous le même emplacement (même nom et même dossier)\n\n Une fois ces deux étapes réalisées appuyez sur 'Entrée'");
             Console.ReadKey();
             Console.WriteLine("Êtes-vous sûr d'avoir renseigné tous les scores et d'avoir enregistré le fichier ? Si non, c'est le moment !\n Appuyez sur 'Entrée'");
+            Console.ReadKey();
             //Read the information from the file
-            excelManager.ReadResultsFromExcelFile(path, poolsTab);
+            readingOk = excelManager.ReadResultsFromExcelFile(path, poolsTab);
+            while (!readingOk)
+            {
+                Console.Clear();
+                Console.WriteLine("Des résultats n'ont pas été correctement renseignés sur le fichier excel.\nVeuillez vous assurer que les scores sont inscrits sous forme de nombres entiers (ex: 10, 14, 25).\nVeuillez vous assurer que les colonnes et les lignes ont bien été respectées (pas d'insertion de ligne ou de colonne).\nVeuillez vous assurer que le nom du fichier est le même que celui qui a été généré.\n\nAppuyez sur 'Entrée' pour réessayer...");
+                Console.ReadKey();
+                readingOk = excelManager.ReadResultsFromExcelFile(path, poolsTab);
+            }
             
             //Classify the teams and display the results 
             tempList = ComputePoolsResults(poolsTab);
-            DisplayFinalResults(tempList);
+            excelManager.WriteFinalResults(@path, tempList);
+            Console.Clear();
+            Console.WriteLine("Un onglet a été créé dans le fichier Excel pour afficher les résultats.\nAppuyez sur 'Entrée' pour cloturer le tournoi.");
+            Console.ReadKey();
         }
 
         /// <summary>
@@ -231,16 +270,18 @@ namespace RugbyTournament
         {
             Console.Clear();
             Console.WriteLine("Les résulats finaux sont : ");
-            int NumPool = 1;
+            int numPool = 1;
             int totalCount = 1;
             foreach(List<Team> listT in listTeamsByPool)
             {
-                Console.WriteLine("---- Pool #" + NumPool);
+                Console.WriteLine("---- Pool #" + numPool);
                 for(int k = 0; k < listT.Count; k++)
                 {
                     Console.WriteLine(totalCount + ". " + listT[k].ToString());
                     totalCount++;
+                    
                 }
+                numPool++;
             }
             Console.WriteLine("-------------------------------------");
             Console.WriteLine("\n\n Appuyez sur 'Entrée' pour terminer le tournoi.");
@@ -255,16 +296,18 @@ namespace RugbyTournament
         {
             Console.Clear();
             Console.WriteLine("Les résulats intermédiaires sont : ");
-            int NumPool = 1;
+            int numPool = 1;
             int totalCount = 1;
             foreach (List<Team> listT in listTeamsByPool)
             {
-                Console.WriteLine("---- Pool #" + NumPool);
+                Console.WriteLine("---- Pool #" + numPool);
                 for (int k = 0; k < listT.Count; k++)
                 {
                     Console.WriteLine((k+1) + ". " + listT[k].ToString());
                     totalCount++;
+                    
                 }
+                numPool++;
             }
             Console.WriteLine("-------------------------------------");
             Console.WriteLine("\n\n Appuyez sur 'Entrée' pour continuer et passer aux pools de l'après midi.");
@@ -461,6 +504,7 @@ namespace RugbyTournament
             Console.WriteLine("\n\n Appuyez sur Entrée ...");
             Console.ReadKey();
         }
+
 
     }
 }
