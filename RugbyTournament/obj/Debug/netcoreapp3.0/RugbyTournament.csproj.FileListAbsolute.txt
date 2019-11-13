@@ -38,3 +38,6 @@ C:\Users\willi\source\repos\RugbyTournamentSolution\RugbyTournament\bin\Debug\ne
 C:\Users\willi\source\repos\RugbyTournamentSolution\RugbyTournament\bin\Debug\netcoreapp3.0\runtimes\win\lib\netcoreapp3.0\System.Drawing.Common.dll
 C:\Users\willi\source\repos\RugbyTournamentSolution\RugbyTournament\bin\Debug\netcoreapp3.0\runtimes\win\lib\netcoreapp2.1\System.Security.Cryptography.Pkcs.dll
 C:\Users\willi\source\repos\RugbyTournamentSolution\RugbyTournament\obj\Debug\netcoreapp3.0\RugbyTournament.csproj.CopyComplete
+C:\Users\willi\source\repos\RugbyTournamentSolution\RugbyTournament\obj\Debug\netcoreapp3.0\RugbyTournament.Properties.Resources.resources
+C:\Users\willi\source\repos\RugbyTournamentSolution\RugbyTournament\obj\Debug\netcoreapp3.0\RugbyTournament.csproj.GenerateResource.cache
+C:\Users\willi\source\repos\RugbyTournamentSolution\RugbyTournament\bin\Debug\netcoreapp3.0\System.Resources.Extensions.dll

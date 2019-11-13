@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TournoiRugby;
+using System.Resources;
 
 namespace RugbyTournament
 {
