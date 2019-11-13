@@ -174,6 +174,109 @@ namespace RugbyTournament
         }
 
         /// <summary>
+        /// Method used to sort the teams in each pool by their TotalScore (descending), and return all the sorted lists of the tournament (one for each pool) 
+        /// </summary>
+        /// <param name="pTab"></param>
+        /// <returns>Returns a list of the sorted lists of each Pool. The sorted lists are ordered by descending TotalScore</returns>
+        static List<List<Team>> ComputePoolsResults(Pool[] pTab)
+        {
+            List<List<Team>> sortedTeamsLists = new List<List<Team>>();
+            List<Team> tempTeamList;
+            
+            foreach (Pool p in pTab)
+            {
+                tempTeamList = p.ComputeResults();
+                sortedTeamsLists.Add(tempTeamList);
+            }
+            return sortedTeamsLists;
+        }
+
+        /// <summary>
+        /// Method used to create new Pools from the results of the pools of the first phase. 
+        /// This method will fill the first Pool with the NbTeamsInPool first teams of the tournament, the second pool with the next NbTeamsInPool first teams and so on.
+        /// </summary>
+        /// <param name="sortedTeamsLists"></param>
+        /// <param name="previousPools"></param>
+        /// <returns>Returns a tab with the newly created pools. The first pool contains the "best" teams of the tournament.</returns>
+        static Pool[] CreateNewPools(List<List<Team>> sortedTeamsLists, Pool[] previousPools)
+        {
+            List<Pool> newPoolsList = new List<Pool>();
+
+            //Create one sorted list from all the sorted lists. 
+            //We order by positionInPool (e.g. to fill the first pool with all the first teams of the tournament) and then by TotalScore (to find the best second team of the tournament for example)
+            List<Team> SortedList = sortedTeamsLists.SelectMany(teamList => teamList).OrderBy(team => team.PositionInPool).ThenByDescending(team => team.TotalScore).ToList();
+            foreach (Pool p in previousPools)
+            {
+                Pool newP = new Pool(p.PoolId, p.NbTeamsInPool);
+                newPoolsList.Add(newP);
+            }
+            foreach (Pool p in newPoolsList)
+            {
+                for (int i = 0; i < p.NbTeamsInPool; i++)
+                {
+                    SortedList[0].ClearResults();
+                    p.AddTeam(SortedList[0], i);
+                    SortedList.RemoveAt(0);
+                }
+            }
+            Pool[] poolTab = newPoolsList.ToArray();
+            return poolTab;
+        }
+
+        /// <summary>
+        /// Method used to display the final rank of each team in the console.
+        /// </summary>
+        /// <param name="listTeamsByPool"></param>
+        static void DisplayFinalResults(List<List<Team>> listTeamsByPool)
+        {
+            Console.Clear();
+            Console.WriteLine("Les résulats finaux sont : ");
+            int NumPool = 1;
+            int totalCount = 1;
+            foreach(List<Team> listT in listTeamsByPool)
+            {
+                Console.WriteLine("---- Pool #" + NumPool);
+                for(int k = 0; k < listT.Count; k++)
+                {
+                    Console.WriteLine(totalCount + ". " + listT[k].ToString());
+                    totalCount++;
+                }
+            }
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine("\n\n Appuyez sur 'Entrée' pour terminer le tournoi.");
+            Console.ReadLine();
+        }
+
+        /// <summary>
+        /// Method used to display the intermedirary (=of the first phase) rank of each team
+        /// </summary>
+        /// <param name="listTeamsByPool"></param>
+        static void DisplayIntermediaryResults(List<List<Team>> listTeamsByPool)
+        {
+            Console.Clear();
+            Console.WriteLine("Les résulats intermédiaires sont : ");
+            int NumPool = 1;
+            int totalCount = 1;
+            foreach (List<Team> listT in listTeamsByPool)
+            {
+                Console.WriteLine("---- Pool #" + NumPool);
+                for (int k = 0; k < listT.Count; k++)
+                {
+                    Console.WriteLine((k+1) + ". " + listT[k].ToString());
+                    totalCount++;
+                }
+            }
+            Console.WriteLine("-------------------------------------");
+            Console.WriteLine("\n\n Appuyez sur 'Entrée' pour continuer et passer aux pools de l'après midi.");
+            Console.ReadLine();
+        }
+
+
+
+
+     //******************* CONSOLE INTERACTIONS ***************************
+
+        /// <summary>
         /// This method displays the pools of the tournament, allows the user to chose a pool thanks to a number 
         /// once the Pool is chosen, the method displays the games of the pool and the user can choose a game thanks to a number to specify the score of each team
         /// </summary>
@@ -181,7 +284,7 @@ namespace RugbyTournament
         /// Not used in this version
         /// </remarks>
         /// <param name="poolsTab"></param>
-        static void EnterGamesScore (Pool[] poolsTab)
+        static void EnterGamesScore(Pool[] poolsTab)
         {
             Pool chosenPool = poolsTab[0];
             while (chosenPool != null)
@@ -190,25 +293,25 @@ namespace RugbyTournament
                 DisplayPoolsToChoose(poolsTab);
                 //The user choses a pools thanks to its number
                 chosenPool = ChoosePool(poolsTab);
-                if(chosenPool != null)
+                if (chosenPool != null)
                 {
                     Game g = chosenPool.FindGameByIndex(0);
-                    while(g != null) //while loop to come back to the games display after entering the scores of a game
+                    while (g != null) //while loop to come back to the games display after entering the scores of a game
                     {
                         DisplayGames(chosenPool);
                         g = ChooseGame(chosenPool);
-                        if(g != null)
+                        if (g != null)
                         {
                             EnterGameScore(g);
-                        }                    
+                        }
                     }
                 }
                 //Verify that there is no missing data to continue and compute the ranking
-                if(chosenPool == null)
+                if (chosenPool == null)
                 {
-                    foreach(Pool p in poolsTab)
+                    foreach (Pool p in poolsTab)
                     {
-                        if(Convert.ToInt32(p.GetUnplayedGames()) > 0)
+                        if (Convert.ToInt32(p.GetUnplayedGames()) > 0)
                         {
                             chosenPool = poolsTab[0];
                             Console.WriteLine("\n La Pool #" + p.PoolId + " ne possède pas de score pour tous ses matchs, veuillez les renseigner.");
@@ -219,29 +322,44 @@ namespace RugbyTournament
                 }
             }
         }
-        
+
+        /// <summary>
+        /// Method used to display the pools of the tournament in the console along with the number of their unplayed games.
+        /// </summary>
+        /// <remarks>
+        /// Not used in this version
+        /// </remarks>
+        /// <param name="pTab"></param>
         static void DisplayPoolsToChoose(Pool[] pTab)
         {
             Console.Clear();
             Console.WriteLine("-------------------------------------");
             Console.WriteLine("Les pools de votre tournoi : \n\n");
-            foreach(Pool p in pTab)
+            foreach (Pool p in pTab)
             {
                 Console.WriteLine(p.ToString() + " [" + p.GetUnplayedGames() + " score(s) non renseigné(s).]\n");
             }
         }
 
+        /// <summary>
+        /// Method used to choose a pool from its displayed number.
+        /// </summary>
+        /// <remarks>
+        /// Not used in this version
+        /// </remarks>
+        /// <param name="pTab"></param>
+        /// <returns>Returns the pool chosen by the user, null otherwise.</returns>
         static Pool ChoosePool(Pool[] pTab)
         {
             string inputLine;
-            int res =0;
+            int res;
             Console.WriteLine("-------------------------------------");
             Console.WriteLine("\nTapez le numéro de la pool et appuyez sur 'Entrée' \n\n\n Une fois tous les scores renseignés,\nTapez '0' et appyuez sur 'Entrée' pour calculer le classement");
             inputLine = Console.ReadLine();
             if (inputLine.Length > 0) { res = Convert.ToInt32(inputLine); }
             else { res = 0; }
 
-            while(res<0 || res>pTab.Length)
+            while (res < 0 || res > pTab.Length) //if there is no pool corresponding to the entered number
             {
                 Console.WriteLine("\nNuméro incorrect. Veuillez choisir un numéro de pool existant");
                 inputLine = Console.ReadLine();
@@ -249,17 +367,25 @@ namespace RugbyTournament
                 else { res = 0; }
             }
 
-            if(res > 0)
+            if (res > 0)
             {
                 return pTab[res - 1];
-            } else
+            }
+            else
             {
                 return null;
             }
-                
+
 
         }
 
+        /// <summary>
+        /// Method used to display the games of the pool in the console.
+        /// </summary>
+        /// <remarks>
+        /// Not used in this version
+        /// </remarks>
+        /// <param name="pool"></param>
         static void DisplayGames(Pool pool)
         {
             Console.Clear();
@@ -268,6 +394,14 @@ namespace RugbyTournament
             Console.WriteLine(pool.DisplayPoolGames());
         }
 
+        /// <summary>
+        /// Method used to select a game for the game list of the pool thanks to a number.
+        /// </summary>
+        /// <remarks>
+        /// Not used in this version
+        /// </remarks>
+        /// <param name="pool"></param>
+        /// <returns>Returns the game corresponding to the enterd number, null otherwise</returns>
         static Game ChooseGame(Pool pool)
         {
             string inputLine;
@@ -289,13 +423,20 @@ namespace RugbyTournament
             if (res > 0)
             {
                 //res-1 because games were displayed at index+1
-                return pool.FindGameByIndex(res-1);
+                return pool.FindGameByIndex(res - 1);
             }
             else
             {
                 return null;
             }
         }
+        /// <summary>
+        /// Method used to specify the points scored by each team of a given game
+        /// </summary>
+        /// <remarks>
+        /// Not used in this version
+        /// </remarks>
+        /// <param name="g"></param>
         static void EnterGameScore(Game g)
         {
             string inputLine;
@@ -316,87 +457,9 @@ namespace RugbyTournament
             g.EnterScore(scoreA, scoreB);
             Console.Clear();
             Console.WriteLine("\nMatch validé\n" + g.TeamA + ": " + g.ScoreA + "\n" + g.TeamB + ": " + g.ScoreB + "\n\n" + "Vainqueur = " + g.GetVerbalWinner());
-            Console.WriteLine("-------------------------------------"); 
+            Console.WriteLine("-------------------------------------");
             Console.WriteLine("\n\n Appuyez sur Entrée ...");
             Console.ReadKey();
-        }
-
-        static List<List<Team>> ComputePoolsResults(Pool[] pTab)
-        {
-            List<List<Team>> sortedTeamsLists = new List<List<Team>>();
-            List<Team> tempTeamList;
-            
-            foreach (Pool p in pTab)
-            {
-                tempTeamList = p.ComputeResults();
-                sortedTeamsLists.Add(tempTeamList);
-            }
-            return sortedTeamsLists;
-        }
-        static Pool[] CreateNewPools(List<List<Team>> sortedTeamsLists, Pool[] previousPools)
-        {
-            List<Pool> newPoolsList = new List<Pool>();
-            List<Team> SortedList = sortedTeamsLists.SelectMany(teamList => teamList).OrderBy(team => team.PositionInPool).ThenByDescending(team => team.TotalScore).ToList();
-            foreach (Pool p in previousPools)
-            {
-                Pool newP = new Pool(p.PoolId, p.NbTeamsInPool);
-                newPoolsList.Add(newP);
-            }
-            foreach (Team t in SortedList)
-            {
-                Console.WriteLine(t.ToString());
-            }
-            foreach (Pool p in newPoolsList)
-            {
-                for (int i = 0; i < p.NbTeamsInPool; i++)
-                {
-                    SortedList[0].ClearResults();
-                    p.AddTeam(SortedList[0], i);
-                    SortedList.RemoveAt(0);
-                }
-                Console.WriteLine(p.ToString());
-            }
-            Pool[] poolTab = newPoolsList.ToArray();
-            return poolTab;
-        }
-
-        static void DisplayFinalResults(List<List<Team>> listTeamsByPool)
-        {
-            Console.Clear();
-            Console.WriteLine("Les résulats finaux sont : ");
-            int NumPool = 1;
-            int totalCount = 1;
-            foreach(List<Team> listT in listTeamsByPool)
-            {
-                Console.WriteLine("---- Pool #" + NumPool);
-                for(int k = 0; k < listT.Count; k++)
-                {
-                    Console.WriteLine(totalCount + ". " + listT[k].ToString());
-                    totalCount++;
-                }
-            }
-            Console.WriteLine("-------------------------------------");
-            Console.WriteLine("\n\n Appuyez sur 'Entrée' pour terminer le tournoi.");
-            Console.ReadLine();
-        }
-        static void DisplayIntermediaryResults(List<List<Team>> listTeamsByPool)
-        {
-            Console.Clear();
-            Console.WriteLine("Les résulats intermédiaires sont : ");
-            int NumPool = 1;
-            int totalCount = 1;
-            foreach (List<Team> listT in listTeamsByPool)
-            {
-                Console.WriteLine("---- Pool #" + NumPool);
-                for (int k = 0; k < listT.Count; k++)
-                {
-                    Console.WriteLine((k+1) + ". " + listT[k].ToString());
-                    totalCount++;
-                }
-            }
-            Console.WriteLine("-------------------------------------");
-            Console.WriteLine("\n\n Appuyez sur 'Entrée' pour continuer et passer aux pools de l'après midi.");
-            Console.ReadLine();
         }
 
     }
